@@ -21,16 +21,17 @@ import (
 
 const (
 	MaxInput    uint64 = 1000
-	FeeRate     uint64 = 5000
+	FeeRate     uint64 = 1000
 	CkbCapacity uint64 = 6100000000
 	UdtCapacity uint64 = 14200000000
 )
 
 var (
-	ErrInsufficientBalance = errors.New("insufficient balance")
-	ErrNotAcpLock          = errors.New("address must acp address")
-	ErrUnknownToken        = errors.New("unknown token")
-	ErrNoneAcpCell         = errors.New("none acy cell")
+	ErrInsufficientCkbBalance  = errors.New("insufficient CKB balance")
+	ErrInsufficientSudtBalance = errors.New("insufficient sUDT balance")
+	ErrNotAcpLock              = errors.New("address must acp address")
+	ErrUnknownToken            = errors.New("unknown token")
+	ErrNoneAcpCell             = errors.New("none acy cell")
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
@@ -116,7 +117,7 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	for _, cell := range liveCells.Objects {
 		if cell.Output.Type == nil && len(cell.OutputData) == 0 {
 			if cell.Output.Capacity < total+CkbCapacity {
-				return nil, nil, ErrInsufficientBalance
+				return nil, nil, ErrInsufficientCkbBalance
 			}
 			fromCapacity = cell.Output.Capacity
 			tx.Inputs = append(tx.Inputs, &types.CellInput{
@@ -133,7 +134,7 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	}
 
 	if fromCapacity == 0 {
-		return nil, nil, ErrInsufficientBalance
+		return nil, nil, ErrInsufficientCkbBalance
 	}
 	emptyWitness, _ := transaction.EmptyWitnessArg.Serialize()
 
@@ -160,7 +161,7 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	tx.Outputs[1].Capacity = fromCapacity - total - fee
 
 	if tx.Outputs[1].Capacity < CkbCapacity {
-		return nil, nil, ErrInsufficientBalance
+		return nil, nil, ErrInsufficientCkbBalance
 	}
 
 	return tx, inputs, nil
@@ -271,17 +272,10 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	var ckbBalance uint64
 	var udtBalance *big.Int
 	for _, cell := range liveCells.Objects {
-		if !stopCkb && cell.Output.Type == nil && len(cell.OutputData) == 0 {
-			if (toNormal && cell.Output.Capacity <= CkbCapacity*2) || (!toNormal && cell.Output.Capacity <= CkbCapacity) {
-				return nil, nil, ErrInsufficientBalance
+		if toNormal && cell.Output.Type == nil && len(cell.OutputData) == 0 {
+			if (cell.Output.Capacity <= CkbCapacity*2) || (!toNormal && cell.Output.Capacity <= CkbCapacity) {
+				return nil, nil, ErrInsufficientCkbBalance
 			}
-			tx.Inputs = append(tx.Inputs, &types.CellInput{
-				Since:          0,
-				PreviousOutput: cell.OutPoint,
-			})
-			tx.Witnesses = append(tx.Witnesses, []byte{})
-			ckbBalance = cell.Output.Capacity
-			stopCkb = true
 		}
 		if !stopUdt && cell.Output.Type != nil && cell.Output.Type.CodeHash.String() == config.UDT.Script.CodeHash {
 			args := "0x" + hex.EncodeToString(cell.Output.Type.Args)
@@ -312,13 +306,13 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 				stopUdt = true
 			}
 		}
-		if stopCkb && stopUdt {
+		if stopUdt {
 			break
 		}
 	}
 
-	if !stopCkb || !stopUdt {
-		return nil, nil, ErrInsufficientBalance
+	if !stopUdt {
+		return nil, nil, ErrInsufficientSudtBalance
 	}
 	emptyWitness, _ := transaction.EmptyWitnessArg.Serialize()
 	if toNormal {
@@ -369,25 +363,57 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	}
 	tx.OutputsData = append(tx.OutputsData, b)
 
-	tx.Outputs = append(tx.Outputs, &types.CellOutput{
-		Capacity: 0,
-		Lock:     from,
-	})
-	tx.OutputsData = append(tx.OutputsData, []byte{})
-
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+	fee += 8
 	if err != nil {
 		return nil, nil, err
 	}
-	tx.Outputs[2].Capacity = ckbBalance - fee
-	if toNormal {
-		tx.Outputs[2].Capacity = ckbBalance - UdtCapacity - fee
+	originFromCKBBalance := tx.Outputs[1].Capacity
+	if originFromCKBBalance-fee < UdtCapacity {
+		for _, cell := range liveCells.Objects {
+			if !stopCkb && cell.Output.Type == nil && len(cell.OutputData) == 0 {
+				if (toNormal && cell.Output.Capacity <= CkbCapacity*2) || (!toNormal && cell.Output.Capacity <= CkbCapacity) {
+					return nil, nil, ErrInsufficientCkbBalance
+				}
+				tx.Inputs = append(tx.Inputs, &types.CellInput{
+					Since:          0,
+					PreviousOutput: cell.OutPoint,
+				})
+				tx.Witnesses = append(tx.Witnesses, []byte{})
+				ckbBalance = cell.Output.Capacity
+				stopCkb = true
+			}
+			if stopCkb {
+				break
+			}
+		}
+
+		if !stopCkb {
+			return nil, nil, ErrInsufficientCkbBalance
+		}
+
+		tx.Outputs = append(tx.Outputs, &types.CellOutput{
+			Capacity: 0,
+			Lock:     from,
+		})
+		tx.OutputsData = append(tx.OutputsData, []byte{})
+		fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+		fee += 8
+		if err != nil {
+			return nil, nil, err
+		}
+		tx.Outputs[2].Capacity = ckbBalance - fee
+		if toNormal {
+			tx.Outputs[2].Capacity = ckbBalance - UdtCapacity - fee
+		}
+	} else {
+		tx.Outputs[1].Capacity = originFromCKBBalance - fee
 	}
 
 	return tx, inputs, nil
 }
 
-func BuildEmpytTransaction(from string, to string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
+func BuildEmptyTransaction(from string, to string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
 	fromParsedAddr, err := address.Parse(from)
 	if err != nil {
 		return nil, nil, err
@@ -415,7 +441,7 @@ func BuildEmpytTransaction(from string, to string, client rpc.Client, config *co
 		return nil, nil, err
 	}
 	if len(liveCells.Objects) == 0 {
-		return nil, nil, ErrInsufficientBalance
+		return nil, nil, ErrInsufficientCkbBalance
 	}
 
 	var balance uint64 = 0
@@ -477,7 +503,7 @@ func BuildTransformAccountTransaction(addr string, client rpc.Client, config *co
 		return nil, nil, err
 	}
 	if len(liveCells.Objects) == 0 {
-		return nil, nil, ErrInsufficientBalance
+		return nil, nil, ErrInsufficientCkbBalance
 	}
 
 	var balance uint64 = 0
