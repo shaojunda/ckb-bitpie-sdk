@@ -1,0 +1,25 @@
+rpc: 'http://localhost:8114'
+# mainnet or testnet
+network: testnet
+
+acp:
+  deps:
+    - txHash: 0xe359183d90d0c3abd36891f2bbc92435a4c18c20017f1b9343749c786b0a7d70
+      index: 0
+      depType: dep_group
+  script:
+    codeHash: 0x0fb343953ee78c9986b091defb6252154e0bb51044fd2879fde5b27314506111
+    hashType: data
+
+udt:
+  deps:
+    - txHash: 0x5d9dab99eba9f3a9ad34ae851bd4efa300ae795efdeb74eccb88942c697850d5
+      index: 0
+      depType: code
+  script:
+    codeHash: 0xcff131972d1ac2fe3bf1cc43476785ce6b2e8f65dd2a584b3a0b91f74ffa5c64
+    hashType: type
+  tokens:
+    0xeb1d5de06feee7fc0566386bd16b5d6141ac4278f1325e3ad7b984f5a9368507:
+      symbol: USDT
+      decimal: 8
