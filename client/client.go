@@ -66,8 +66,8 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       uuid,
-					TokenIdentifier: token.Symbol,
+					TokenCode:       token.Symbol,
+					TokenIdentifier: uuid,
 					TokenDecimal:    token.Decimal,
 				})
 			} else {
@@ -75,7 +75,7 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       uuid,
+					TokenCode:       token.Symbol,
 					TokenIdentifier: "Unknown",
 					TokenDecimal:    1,
 				})
@@ -113,8 +113,8 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       uuid,
-					TokenIdentifier: token.Symbol,
+					TokenCode:       token.Symbol,
+					TokenIdentifier: uuid,
 					TokenDecimal:    token.Decimal,
 				})
 			} else {
@@ -122,7 +122,7 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       uuid,
+					TokenCode:       token.Symbol,
 					TokenIdentifier: "Unknown",
 					TokenDecimal:    1,
 				})
@@ -171,8 +171,8 @@ func offlineTransaction2TxDict(inputs []tx.Input, rawTx *types.Transaction, conf
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       uuid,
-					TokenIdentifier: token.Symbol,
+					TokenCode:       token.Symbol,
+					TokenIdentifier: uuid,
 					TokenDecimal:    token.Decimal,
 				})
 			} else {
@@ -180,7 +180,7 @@ func offlineTransaction2TxDict(inputs []tx.Input, rawTx *types.Transaction, conf
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       uuid,
+					TokenCode:       token.Symbol,
 					TokenIdentifier: "Unknown",
 					TokenDecimal:    1,
 				})
@@ -334,8 +334,8 @@ func BalancesForAddress(addr string, client rpc.Client, config *config.Config) (
 	}
 	for key, token := range config.UDT.Tokens {
 		balanceMap[key] = &Balance{
-			TokenCode:       key,
-			TokenIdentifier: token.Symbol,
+			TokenCode:       token.Symbol,
+			TokenIdentifier: key,
 			TokenDecimal:    token.Decimal,
 			Balance:         big.NewInt(0).String(),
 		}
