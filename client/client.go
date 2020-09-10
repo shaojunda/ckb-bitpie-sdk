@@ -20,7 +20,7 @@ import (
 )
 
 func NewRpcClient(endpoint string) (rpc.Client, error) {
-	return rpc.Dial("http://localhost:8114", "http://localhost:8116")
+	return rpc.Dial(endpoint+"/rpc", endpoint+"/indexer")
 }
 
 func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime time.Time, client rpc.Client, config *config.Config) (result *tx.Dict, err error) {
