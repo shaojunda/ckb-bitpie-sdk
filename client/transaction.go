@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"log"
 	"math/big"
 	"strconv"
 
@@ -34,6 +35,7 @@ var (
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
+	log.Printf("config: %+v\n", config)
 	fromParsedAddr, err := address.Parse(from)
 	if err != nil {
 		return nil, nil, err
