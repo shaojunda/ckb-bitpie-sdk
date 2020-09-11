@@ -202,17 +202,18 @@ func GetTransaction(txHash string, client rpc.Client, config *config.Config) (*t
 	if err != nil {
 		return nil, err
 	}
-
+	tNow := time.Now()
+	timeT := time.Unix(tNow.Unix(), 0)
 	if rawTx.TxStatus.BlockHash == nil {
-		fmt.Println("111111111")
+		return transaction2TxDict(rawTx.Transaction, 0, timeT, client, config)
+	} else {
+		block, err := client.GetHeader(context.Background(), *rawTx.TxStatus.BlockHash)
+		if err != nil {
+			return nil, err
+		}
+		blockTime := time.Unix(int64(block.Timestamp/1000), int64(block.Timestamp%1000))
+		return transaction2TxDict(rawTx.Transaction, block.Number, blockTime, client, config)
 	}
-
-	block, err := client.GetHeader(context.Background(), *rawTx.TxStatus.BlockHash)
-	if err != nil {
-		return nil, err
-	}
-
-	return transaction2TxDict(rawTx.Transaction, block.Number, time.Unix(int64(block.Timestamp/1000), int64(block.Timestamp%1000)), client, config)
 }
 
 func LockScript2Address(script *types.Script, config *config.Config) (addr string, err error) {
