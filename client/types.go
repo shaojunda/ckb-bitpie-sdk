@@ -1,6 +1,6 @@
 package client
 
-import "github.com/ququzone/ckb-bitpie-sdk/utils/tx"
+import "github.com/shaojunda/ckb-bitpie-sdk/utils/tx"
 
 type Balance struct {
 	TokenCode       string `json:"token_code,omitempty"`

@@ -9,18 +9,18 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ququzone/ckb-bitpie-sdk/config"
-	"github.com/ququzone/ckb-bitpie-sdk/utils/tx"
-	"github.com/ququzone/ckb-rich-sdk-go/indexer"
-	"github.com/ququzone/ckb-rich-sdk-go/rpc"
-	"github.com/ququzone/ckb-sdk-go/address"
-	"github.com/ququzone/ckb-sdk-go/crypto/blake2b"
-	"github.com/ququzone/ckb-sdk-go/transaction"
-	"github.com/ququzone/ckb-sdk-go/types"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
+	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
+	"github.com/nervosnetwork/ckb-sdk-go/rpc"
+	"github.com/nervosnetwork/ckb-sdk-go/transaction"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/shaojunda/ckb-bitpie-sdk/config"
+	"github.com/shaojunda/ckb-bitpie-sdk/utils/tx"
 )
 
 func NewRpcClient(endpoint string) (rpc.Client, error) {
-	return rpc.Dial(endpoint+"/rpc", endpoint+"/indexer")
+	return rpc.DialWithIndexer(endpoint+"/rpc", endpoint+"/indexer")
 }
 
 func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime time.Time, client rpc.Client, config *config.Config) (result *tx.Dict, err error) {
