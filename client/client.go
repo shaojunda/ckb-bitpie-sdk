@@ -391,7 +391,7 @@ func BalancesForAddress(addr string, client rpc.Client, config *config.Config) (
 	return result, nil
 }
 
-func TxsForAddress(addr string, cursor string, client rpc.Client, config *config.Config) (*AddressTxs, error) {
+func TxsForAddress(addr string, cursor string, limit uint64, client rpc.Client, config *config.Config) (*AddressTxs, error) {
 	parsedAddr, err := address.Parse(addr)
 	if err != nil {
 		return nil, err
@@ -402,7 +402,7 @@ func TxsForAddress(addr string, cursor string, client rpc.Client, config *config
 		ScriptType: indexer.ScriptTypeLock,
 	}
 
-	rawTxs, err := client.GetTransactions(context.Background(), searchKey, indexer.SearchOrderDesc, 1000, cursor)
+	rawTxs, err := client.GetTransactions(context.Background(), searchKey, indexer.SearchOrderDesc, limit, cursor)
 	if err != nil {
 		return nil, err
 	}
