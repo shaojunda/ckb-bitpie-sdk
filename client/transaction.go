@@ -8,15 +8,14 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/ququzone/ckb-bitpie-sdk/config"
-	btx "github.com/ququzone/ckb-bitpie-sdk/utils/tx"
-	"github.com/ququzone/ckb-rich-sdk-go/indexer"
-	"github.com/ququzone/ckb-rich-sdk-go/rpc"
-	"github.com/ququzone/ckb-sdk-go/address"
-	orpc "github.com/ququzone/ckb-sdk-go/rpc"
-	"github.com/ququzone/ckb-sdk-go/transaction"
-	"github.com/ququzone/ckb-sdk-go/types"
-	"github.com/ququzone/ckb-sdk-go/utils"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
+	"github.com/nervosnetwork/ckb-sdk-go/rpc"
+	"github.com/nervosnetwork/ckb-sdk-go/transaction"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/nervosnetwork/ckb-sdk-go/utils"
+	"github.com/shaojunda/ckb-bitpie-sdk/config"
+	btx "github.com/shaojunda/ckb-bitpie-sdk/utils/tx"
 )
 
 const (
@@ -642,7 +641,7 @@ func BuildUdtCellTransaction(addr string, tokenIdentifier string, client rpc.Cli
 }
 
 func SerializeTransaction(tx *types.Transaction) ([]byte, error) {
-	txs, err := orpc.TransactionString(tx)
+	txs, err := rpc.TransactionString(tx)
 	if err != nil {
 		return nil, err
 	}
@@ -650,7 +649,7 @@ func SerializeTransaction(tx *types.Transaction) ([]byte, error) {
 }
 
 func DeserializeTransaction(tx []byte) (*types.Transaction, error) {
-	txs, err := orpc.TransactionFromString(string(tx))
+	txs, err := rpc.TransactionFromString(string(tx))
 	if err != nil {
 		return nil, err
 	}
