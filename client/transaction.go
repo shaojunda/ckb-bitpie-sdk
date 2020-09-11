@@ -655,3 +655,61 @@ func DeserializeTransaction(tx []byte) (*types.Transaction, error) {
 	}
 	return txs, nil
 }
+
+func Transaction2TxDictOffline(inputs []btx.Input, rawTx *types.Transaction, config *config.Config) (result *btx.Dict, err error) {
+	result = &btx.Dict{}
+
+	for i, input := range inputs {
+		input.Sn = i
+		result.Inputs = append(result.Inputs, input)
+	}
+
+	for i, output := range rawTx.Outputs {
+		var addr string
+		if config.Network == "mainnet" {
+			addr, err = address.Generate(address.Mainnet, output.Lock)
+		} else {
+			addr, err = address.Generate(address.Testnet, output.Lock)
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		if output.Type != nil && output.Type.CodeHash.String() == config.UDT.Script.CodeHash {
+			uuid := "0x" + hex.EncodeToString(output.Type.Args)
+			b := rawTx.OutputsData[i]
+			for i := 0; i < len(b)/2; i++ {
+				b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
+			}
+			amount := big.NewInt(0).SetBytes(b)
+
+			if token, ok := config.UDT.Tokens[uuid]; ok {
+				result.Outputs = append(result.Outputs, btx.Output{
+					Value:           amount.String(),
+					Address:         addr,
+					Sn:              i,
+					TokenCode:       token.Symbol,
+					TokenIdentifier: uuid,
+					TokenDecimal:    token.Decimal,
+				})
+			} else {
+				result.Outputs = append(result.Outputs, btx.Output{
+					Value:           amount.String(),
+					Address:         addr,
+					Sn:              i,
+					TokenCode:       "",
+					TokenIdentifier: uuid,
+					TokenDecimal:    0,
+				})
+			}
+		} else {
+			result.Outputs = append(result.Outputs, btx.Output{
+				Value:   fmt.Sprintf("%d", output.Capacity),
+				Address: addr,
+				Sn:      i,
+			})
+		}
+	}
+
+	return
+}
