@@ -75,9 +75,9 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       token.Symbol,
-					TokenIdentifier: "Unknown",
-					TokenDecimal:    1,
+					TokenCode:       "",
+					TokenIdentifier: uuid,
+					TokenDecimal:    0,
 				})
 			}
 		} else {
@@ -109,7 +109,7 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 			amount := big.NewInt(0).SetBytes(b)
 
 			if token, ok := config.UDT.Tokens[uuid]; ok {
-				result.Inputs = append(result.Inputs, tx.Input{
+				result.Outputs = append(result.Outputs, tx.Output{
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
@@ -118,13 +118,13 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					TokenDecimal:    token.Decimal,
 				})
 			} else {
-				result.Inputs = append(result.Inputs, tx.Input{
+				result.Outputs = append(result.Outputs, tx.Output{
 					Value:           amount.String(),
 					Address:         addr,
 					Sn:              i,
-					TokenCode:       token.Symbol,
-					TokenIdentifier: "Unknown",
-					TokenDecimal:    1,
+					TokenCode:       "",
+					TokenIdentifier: uuid,
+					TokenDecimal:    0,
 				})
 			}
 		} else {
@@ -204,15 +204,15 @@ func GetTransaction(txHash string, client rpc.Client, config *config.Config) (*t
 	}
 	tNow := time.Now()
 	timeT := time.Unix(tNow.Unix(), 0)
-	if rawTx.TxStatus.BlockHash == nil {
+	if rawTx.TxStatus == nil || rawTx.TxStatus.BlockHash == nil {
 		return transaction2TxDict(rawTx.Transaction, 0, timeT, client, config)
 	} else {
 		block, err := client.GetHeader(context.Background(), *rawTx.TxStatus.BlockHash)
 		if err != nil {
 			return nil, err
 		}
-		blockTime := time.Unix(int64(block.Timestamp/1000), int64(block.Timestamp%1000))
-		return transaction2TxDict(rawTx.Transaction, block.Number, blockTime, client, config)
+
+		return transaction2TxDict(rawTx.Transaction, block.Number, time.Unix(int64(block.Timestamp/1000), int64(block.Timestamp%1000)), client, config)
 	}
 }
 
