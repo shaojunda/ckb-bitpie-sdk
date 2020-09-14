@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
 	"math/big"
 	"strconv"
 
@@ -35,7 +34,6 @@ var (
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
-	log.Printf("config: %+v\n", config)
 	fromParsedAddr, err := address.Parse(from)
 	if err != nil {
 		return nil, nil, err
@@ -156,6 +154,7 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	})
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+	fee += 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -471,6 +470,7 @@ func BuildEmptyTransaction(from string, to string, client rpc.Client, config *co
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+	fee += 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -536,6 +536,7 @@ func BuildTransformAccountTransaction(addr string, client rpc.Client, config *co
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+	fee += 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -634,6 +635,7 @@ func BuildUdtCellTransaction(addr string, tokenIdentifier string, client rpc.Cli
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+	fee += 8
 	if err != nil {
 		return nil, nil, err
 	}
