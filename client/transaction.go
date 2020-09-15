@@ -26,17 +26,20 @@ const (
 )
 
 var (
-	ErrInsufficientCkbBalance  = errors.New("insufficient CKB balance")
-	ErrInsufficientSudtBalance = errors.New("insufficient sUDT balance")
-	ErrNotAcpLock              = errors.New("address must acp address")
-	ErrUnknownToken            = errors.New("unknown token")
-	ErrNoneAcpCell             = errors.New("none acy cell")
+	ErrInsufficientCkbBalance   = errors.New("insufficient CKB balance")
+	ErrInsufficientSudtBalance  = errors.New("insufficient sUDT balance")
+	ErrNotAcpLock               = errors.New("address must acp address")
+	ErrUnknownToken             = errors.New("unknown token")
+	ErrNoneAcpCell              = errors.New("none acy cell")
+	ErrInvalidTransferUdtAmount = errors.New("amount is invalid")
+	ErrInvalidFromAddress       = errors.New("from address must be a acp address")
+	ErrInvalidToAddress         = errors.New("to address must be a acp address")
 )
 
 type tokenInfo struct {
-	TokenCode string
+	TokenCode       string
 	TokenIdentifier string
-	TokenDecimal int
+	TokenDecimal    int
 }
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
@@ -174,11 +177,70 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 }
 
 func buildUdtTransactionNew(fromAddr string, toAddr string, from *types.Script, to *types.Script, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
-	_, err := generateTokenInfo(config, tokenIdentifier)
+	_, err:= validateAddresses(fromAddr, toAddr, config)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	tInfo, err := generateTokenInfo(config, tokenIdentifier)
+	if err != nil {
+		return nil, nil, err
+	}
+	transferUdtAmount, ok := big.NewInt(0).SetString(amount, 10)
+	if !ok {
+		return nil, nil, ErrInvalidTransferUdtAmount
+	}
+
+	inputs := make([]btx.Input, 0)
+	var toAcpCellOriginAmount *big.Int
+	var toAcpCellOriginCapacity uint64
+	var fromAcpCellOriginCapacity uint64
+
+	tx := &types.Transaction{
+		Version:    0,
+		HeaderDeps: []types.Hash{},
+		CellDeps:   []*types.CellDep{},
+	}
+	buildCellDeps(tx, config)
+
 	return nil, nil, nil
+}
+
+func validateAddresses(fromAddr string, toAddr string, config *config.Config) (bool, error) {
+	fromParsedAddr, err := address.Parse(fromAddr)
+	if err != nil {
+		return false, err
+	}
+	if fromParsedAddr.Script.CodeHash.String() != config.ACP.Script.CodeHash {
+		return false, ErrInvalidFromAddress
+	}
+	toParsedAddr, err := address.Parse(toAddr)
+	if err != nil {
+		return false, err
+	}
+	if toParsedAddr.Script.CodeHash.String() != config.ACP.Script.CodeHash {
+		return false, err
+	}
+	return true, nil
+}
+
+func buildCellDeps(tx *types.Transaction, config *config.Config) {
+	// add acp cellDep
+	tx.CellDeps = append(tx.CellDeps, &types.CellDep{
+		OutPoint: &types.OutPoint{
+			TxHash: types.HexToHash(config.ACP.Deps[0].TxHash),
+			Index:  config.ACP.Deps[0].Index,
+		},
+		DepType: types.DepType(config.ACP.Deps[0].DepType),
+	})
+	// add sUDT cellDep
+	tx.CellDeps = append(tx.CellDeps, &types.CellDep{
+		OutPoint: &types.OutPoint{
+			TxHash: types.HexToHash(config.UDT.Deps[0].TxHash),
+			Index:  config.UDT.Deps[0].Index,
+		},
+		DepType: types.DepType(config.UDT.Deps[0].DepType),
+	})
 }
 
 func generateTokenInfo(config *config.Config, tokenIdentifier string) (tInfo tokenInfo, err error) {
