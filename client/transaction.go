@@ -33,6 +33,12 @@ var (
 	ErrNoneAcpCell             = errors.New("none acy cell")
 )
 
+type tokenInfo struct {
+	TokenCode string
+	TokenIdentifier string
+	TokenDecimal int
+}
+
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
 	fromParsedAddr, err := address.Parse(from)
 	if err != nil {
@@ -165,6 +171,27 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	}
 
 	return tx, inputs, nil
+}
+
+func buildUdtTransactionNew(fromAddr string, toAddr string, from *types.Script, to *types.Script, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
+	_, err := generateTokenInfo(config, tokenIdentifier)
+	if err != nil {
+		return nil, nil, err
+	}
+	return nil, nil, nil
+}
+
+func generateTokenInfo(config *config.Config, tokenIdentifier string) (tInfo tokenInfo, err error) {
+	for identifier, token := range config.UDT.Tokens {
+		if identifier == tokenIdentifier {
+			tInfo = tokenInfo{TokenCode: token.Symbol, TokenIdentifier: identifier, TokenDecimal: token.Decimal}
+			break
+		}
+	}
+	if tInfo.TokenIdentifier == "" {
+		return tokenInfo{}, ErrUnknownToken
+	}
+	return
 }
 
 func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to *types.Script, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
