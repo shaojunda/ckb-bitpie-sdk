@@ -379,6 +379,10 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 					Since:          0,
 					PreviousOutput: cell.OutPoint,
 				})
+				inputs = append(inputs, btx.Input{
+					Value:   fmt.Sprintf("%d", cell.Output.Capacity),
+					Address: fromAddr,
+				})
 				tx.Witnesses = append(tx.Witnesses, []byte{})
 				ckbBalance = cell.Output.Capacity
 				stopCkb = true
