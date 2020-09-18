@@ -600,7 +600,7 @@ func BuildTransformAccountTransaction(addr string, client rpc.Client, config *co
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
+	fee += uint64(len(tx.Witnesses)-1) * 8 + 4
 	if err != nil {
 		return nil, nil, err
 	}
