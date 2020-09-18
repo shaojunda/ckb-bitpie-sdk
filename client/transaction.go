@@ -31,6 +31,7 @@ var (
 	ErrNotAcpLock              = errors.New("address must acp address")
 	ErrUnknownToken            = errors.New("unknown token")
 	ErrNoneAcpCell             = errors.New("none acy cell")
+	ErrEmptyCkbBalance         = errors.New("zero CKB balance")
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
@@ -417,21 +418,20 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	return tx, inputs, nil
 }
 
-func BuildEmptyTransaction(from string, to string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
-	fromParsedAddr, err := address.Parse(from)
+func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
+	fromParsedAddr, err := address.Parse(fromAddr)
 	if err != nil {
 		return nil, nil, err
 	}
-	toParsedAddr, err := address.Parse(to)
+	if fromParsedAddr.Script.CodeHash.String() != config.ACP.Script.CodeHash {
+		return nil, nil, ErrNotAcpLock
+	}
+	toParsedAddr, err := address.Parse(toAddr)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	inputs := make([]btx.Input, 0)
-	searchKey := &indexer.SearchKey{
-		Script:     fromParsedAddr.Script,
-		ScriptType: indexer.ScriptTypeLock,
-	}
 
 	scripts, err := utils.NewSystemScripts(client)
 	if err != nil {
@@ -439,33 +439,93 @@ func BuildEmptyTransaction(from string, to string, client rpc.Client, config *co
 	}
 
 	tx := transaction.NewSecp256k1SingleSigTx(scripts)
-
-	liveCells, err := client.GetCells(context.Background(), searchKey, indexer.SearchOrderAsc, MaxInput, "")
-	if err != nil {
-		return nil, nil, err
+	tx.CellDeps[0] = &types.CellDep{
+		OutPoint: &types.OutPoint{
+			TxHash: types.HexToHash(config.ACP.Deps[0].TxHash),
+			Index:  config.ACP.Deps[0].Index,
+		},
+		DepType: types.DepType(config.ACP.Deps[0].DepType),
 	}
-	if len(liveCells.Objects) == 0 {
+	var toCapacity uint64
+	if toParsedAddr.Script.CodeHash.String() == config.ACP.Script.CodeHash {
+		toSearchKey := &indexer.SearchKey{
+			Script:     toParsedAddr.Script,
+			ScriptType: indexer.ScriptTypeLock,
+		}
+		liveCells, err := client.GetCells(context.Background(), toSearchKey, indexer.SearchOrderAsc, MaxInput, "")
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, cell := range liveCells.Objects {
+			if cell.Output.Type == nil && len(cell.OutputData) == 0 {
+				toCapacity = cell.Output.Capacity
+				tx.Inputs = append(tx.Inputs, &types.CellInput{
+					Since:          0,
+					PreviousOutput: cell.OutPoint,
+				})
+
+				inputs = append(inputs, btx.Input{
+					Value:   fmt.Sprintf("%d", cell.Output.Capacity),
+					Address: toAddr,
+				})
+				tx.Witnesses = append(tx.Witnesses, []byte{})
+				break
+			}
+		}
+		if len(tx.Inputs) == 0 {
+			return nil, nil, ErrNoneAcpCell
+		}
+	}
+	toNormal := false
+	if len(tx.Inputs) == 0 {
+		toNormal = true
+	}
+
+	searchKey := &indexer.SearchKey{
+		Script:     fromParsedAddr.Script,
+		ScriptType: indexer.ScriptTypeLock,
+	}
+	var cursor string
+	var balance uint64
+	for {
+		liveCells, err := client.GetCells(context.Background(), searchKey, indexer.SearchOrderAsc, MaxInput, cursor)
+		if err != nil {
+			return nil, nil, err
+		}
+		if len(liveCells.Objects) == 0 {
+			return nil, nil, ErrInsufficientCkbBalance
+		}
+		for _, cell := range liveCells.Objects {
+			if cell.Output.Type == nil && len(cell.OutputData) == 0 {
+				tx.Inputs = append(tx.Inputs, &types.CellInput{
+					Since:          0,
+					PreviousOutput: cell.OutPoint,
+				})
+
+				inputs = append(inputs, btx.Input{
+					Value:   fmt.Sprintf("%d", cell.Output.Capacity),
+					Address: fromAddr,
+				})
+				tx.Witnesses = append(tx.Witnesses, []byte{})
+				balance += cell.Output.Capacity
+			}
+		}
+		if len(liveCells.Objects) < int(MaxInput) || liveCells.LastCursor == "" {
+			break
+		}
+		cursor = liveCells.LastCursor
+	}
+
+	if balance == 0 {
 		return nil, nil, ErrInsufficientCkbBalance
 	}
 
-	var balance uint64 = 0
-	for _, cell := range liveCells.Objects {
-		if cell.Output.Type == nil && len(cell.OutputData) == 0 {
-			tx.Inputs = append(tx.Inputs, &types.CellInput{
-				Since:          0,
-				PreviousOutput: cell.OutPoint,
-			})
-
-			inputs = append(inputs, btx.Input{
-				Value:   fmt.Sprintf("%d", cell.Output.Capacity),
-				Address: from,
-			})
-			tx.Witnesses = append(tx.Witnesses, []byte{})
-			balance += cell.Output.Capacity
-		}
-	}
 	emptyWitness, _ := transaction.EmptyWitnessArg.Serialize()
-	tx.Witnesses[0] = emptyWitness
+	if toNormal {
+		tx.Witnesses[0] = emptyWitness
+	} else {
+		tx.Witnesses[1] = emptyWitness
+	}
 
 	tx.Outputs = append(tx.Outputs, &types.CellOutput{
 		Capacity: 0,
@@ -479,7 +539,7 @@ func BuildEmptyTransaction(from string, to string, client rpc.Client, config *co
 		return nil, nil, err
 	}
 
-	tx.Outputs[0].Capacity = balance - fee
+	tx.Outputs[0].Capacity = balance + toCapacity - fee
 
 	return tx, inputs, nil
 }
