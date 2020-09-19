@@ -28,8 +28,6 @@ type UnsignedAcpSudtTxBuilder struct {
 	transferUdtAmount *big.Int
 }
 
-//toAcpCellOriginAmount, toAcpCellOriginCapacity, collectedFromAcpCellAmount, fromAcpCellOriginCapacity, extraCapacity
-
 func (a UnsignedAcpSudtTxBuilder) HandleTxFee(tx *ckbTypes.Transaction, options map[string]interface{}) ([]*ckbTypes.CellInput, []*ckbTypes.CellOutput, [][]byte, [][]byte, []btx.Input, uint64, error) {
 	var finalFee uint64
 	tmpTx := new(ckbTypes.Transaction)
