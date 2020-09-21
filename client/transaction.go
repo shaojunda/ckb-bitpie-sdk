@@ -155,7 +155,6 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	})
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -365,7 +364,6 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	tx.OutputsData = append(tx.OutputsData, b)
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -403,7 +401,6 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 		})
 		tx.OutputsData = append(tx.OutputsData, []byte{})
 		fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-		fee += uint64(len(tx.Witnesses)-1) * 8
 		if err != nil {
 			return nil, nil, err
 		}
@@ -534,7 +531,6 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -600,7 +596,6 @@ func BuildTransformAccountTransaction(addr string, client rpc.Client, config *co
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8 + 4
 	if err != nil {
 		return nil, nil, err
 	}
@@ -699,7 +694,6 @@ func BuildUdtCellTransaction(addr string, tokenIdentifier string, client rpc.Cli
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
