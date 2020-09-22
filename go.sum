@@ -149,6 +149,8 @@ github.com/naoina/go-stringutil v0.1.0/go.mod h1:XJ2SJL9jCtBh+P9q5btrd/Ylo8XwT/h
 github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416/go.mod h1:NBIhNtsFMo3G2szEBne+bO4gS192HuIYRqfvOWb4i1E=
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200910161830-c4b42a9e98ca h1:h+/rbWWpa5S4lqWBQgwivPqIEelmXjb97RGGxGbcMps=
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200910161830-c4b42a9e98ca/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
+github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200921070645-0b9f312327c4 h1:jnYalfk49NIIYOsMDBRaXXqkrmChag7/1qgoeTJwvKg=
+github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200921070645-0b9f312327c4/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/olekukonko/tablewriter v0.0.2-0.20190409134802-7e037d187b0c/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=

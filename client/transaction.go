@@ -140,7 +140,6 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *ckbTypes.Script, 
 	})
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 	fee, err := transaction.CalculateTransactionFee(tx, types.FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
@@ -284,9 +283,6 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 				break
 			}
 		}
-		if len(tx.Inputs) == 0 {
-			return nil, nil, types.ErrNoneAcpCell
-		}
 	}
 	toNormal := false
 	if len(tx.Inputs) == 0 {
@@ -346,11 +342,12 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 
 	fee, err := transaction.CalculateTransactionFee(tx, types.FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
-
+	if toNormal && (balance - fee < types.CkbCapacity) {
+		return nil, nil, types.ErrInsufficientCkbBalance
+	}
 	tx.Outputs[0].Capacity = balance + toCapacity - fee
 
 	return tx, inputs, nil
@@ -411,7 +408,6 @@ func BuildTransformAccountTransaction(addr string, client rpc.Client, config *co
 	})
 	tx.OutputsData = append(tx.OutputsData, []byte{})
 	fee, err := transaction.CalculateTransactionFee(tx, types.FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8 + 4
 	if err != nil {
 		return nil, nil, err
 	}
@@ -508,9 +504,7 @@ func BuildUdtCellTransaction(addr string, tokenIdentifier string, client rpc.Cli
 		Lock:     fromParsedAddr.Script,
 	})
 	tx.OutputsData = append(tx.OutputsData, []byte{})
-
 	fee, err := transaction.CalculateTransactionFee(tx, types.FeeRate)
-	fee += uint64(len(tx.Witnesses)-1) * 8
 	if err != nil {
 		return nil, nil, err
 	}
