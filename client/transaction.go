@@ -469,9 +469,6 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 				break
 			}
 		}
-		if len(tx.Inputs) == 0 {
-			return nil, nil, ErrNoneAcpCell
-		}
 	}
 	toNormal := false
 	if len(tx.Inputs) == 0 {
@@ -534,7 +531,9 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 	if err != nil {
 		return nil, nil, err
 	}
-
+	if toNormal && (balance - fee < CkbCapacity) {
+		return nil, nil, ErrInsufficientCkbBalance
+	}
 	tx.Outputs[0].Capacity = balance + toCapacity - fee
 
 	return tx, inputs, nil
