@@ -80,13 +80,12 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					TokenDecimal:    0,
 				})
 			}
-		} else {
-			result.Inputs = append(result.Inputs, tx.Input{
-				Value:   fmt.Sprintf("%d", cell.Capacity),
-				Address: addr,
-				Sn:      i,
-			})
 		}
+		result.Inputs = append(result.Inputs, tx.Input{
+			Value:   fmt.Sprintf("%d", cell.Capacity),
+			Address: addr,
+			Sn:      i,
+		})
 	}
 
 	for i, output := range rawTx.Outputs {
@@ -127,13 +126,12 @@ func transaction2TxDict(rawTx *types.Transaction, blockNumber uint64, blockTime 
 					TokenDecimal:    0,
 				})
 			}
-		} else {
-			result.Outputs = append(result.Outputs, tx.Output{
-				Value:   fmt.Sprintf("%d", output.Capacity),
-				Address: addr,
-				Sn:      i,
-			})
 		}
+		result.Outputs = append(result.Outputs, tx.Output{
+			Value:   fmt.Sprintf("%d", output.Capacity),
+			Address: addr,
+			Sn:      i,
+		})
 	}
 
 	return
