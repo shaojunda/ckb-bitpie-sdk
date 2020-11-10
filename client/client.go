@@ -435,3 +435,16 @@ func IsAcpAddress(addr string, config *config.Config) (bool, error) {
 
 	return false, nil
 }
+
+func IsOldAcpAddress(addr string, config *config.Config) (bool, error) {
+	parsedAddr, err := address.Parse(addr)
+	if err != nil {
+		return false, err
+	}
+
+	if parsedAddr.Script.CodeHash.String() == config.OldACP.Script.CodeHash && string(parsedAddr.Script.HashType) == config.OldACP.Script.HashType {
+		return true, nil
+	}
+
+	return false, nil
+}
