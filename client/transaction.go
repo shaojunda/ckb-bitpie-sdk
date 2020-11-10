@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/shaojunda/ckb-bitpie-sdk/utils"
 	"math/big"
 	"strconv"
 
@@ -13,7 +14,7 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"github.com/nervosnetwork/ckb-sdk-go/utils"
+	ckbUtils "github.com/nervosnetwork/ckb-sdk-go/utils"
 	"github.com/shaojunda/ckb-bitpie-sdk/config"
 	btx "github.com/shaojunda/ckb-bitpie-sdk/utils/tx"
 )
@@ -26,15 +27,23 @@ const (
 )
 
 var (
-	ErrInsufficientCkbBalance  = errors.New("insufficient CKB balance")
-	ErrInsufficientSudtBalance = errors.New("insufficient sUDT balance")
-	ErrNotAcpLock              = errors.New("address must acp address")
-	ErrUnknownToken            = errors.New("unknown token")
-	ErrNoneAcpCell             = errors.New("none acy cell")
-	ErrEmptyCkbBalance         = errors.New("zero CKB balance")
+	ErrInsufficientCkbBalance                = errors.New("insufficient CKB balance")
+	ErrInsufficientSudtBalance               = errors.New("insufficient sUDT balance")
+	ErrNotAcpLock                            = errors.New("address must acp address")
+	ErrUnknownToken                          = errors.New("unknown token")
+	ErrNoneAcpCell                           = errors.New("none acy cell")
+	ErrEmptyCkbBalance                       = errors.New("zero CKB balance")
+	ErrorNotSupportTransferFromOldAcpAddress = errors.New("not support transfer from old acp address")
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
+	fromIsOldAcpAddr, err := utils.IsOldAcpAddress(from, config)
+	if err != nil {
+		return nil, nil, err
+	}
+	if fromIsOldAcpAddr {
+		return nil, nil, ErrorNotSupportTransferFromOldAcpAddress
+	}
 	fromParsedAddr, err := address.Parse(from)
 	if err != nil {
 		return nil, nil, err
@@ -55,7 +64,7 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	var total uint64
 	total, _ = strconv.ParseUint(amount, 10, 64)
 
-	scripts, err := utils.NewSystemScripts(client)
+	scripts, err := ckbUtils.NewSystemScripts(client)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -190,7 +199,7 @@ func buildUdtTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	var originToCKB uint64
 	var originFromCKB uint64
 
-	scripts, err := utils.NewSystemScripts(client)
+	scripts, err := ckbUtils.NewSystemScripts(client)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -430,7 +439,7 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 
 	inputs := make([]btx.Input, 0)
 
-	scripts, err := utils.NewSystemScripts(client)
+	scripts, err := ckbUtils.NewSystemScripts(client)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -531,7 +540,7 @@ func BuildEmptyTransaction(fromAddr string, toAddr string, client rpc.Client, co
 	if err != nil {
 		return nil, nil, err
 	}
-	if toNormal && (balance - fee < CkbCapacity) {
+	if toNormal && (balance-fee < CkbCapacity) {
 		return nil, nil, ErrInsufficientCkbBalance
 	}
 	tx.Outputs[0].Capacity = balance + toCapacity - fee
@@ -551,7 +560,7 @@ func BuildTransformAccountTransaction(addr string, client rpc.Client, config *co
 		ScriptType: indexer.ScriptTypeLock,
 	}
 
-	scripts, err := utils.NewSystemScripts(client)
+	scripts, err := ckbUtils.NewSystemScripts(client)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -625,7 +634,7 @@ func BuildUdtCellTransaction(addr string, tokenIdentifier string, client rpc.Cli
 		return nil, nil, ErrNotAcpLock
 	}
 
-	scripts, err := utils.NewSystemScripts(client)
+	scripts, err := ckbUtils.NewSystemScripts(client)
 	if err != nil {
 		return nil, nil, err
 	}
