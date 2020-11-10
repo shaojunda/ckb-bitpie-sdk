@@ -34,6 +34,7 @@ var (
 	ErrNoneAcpCell                           = errors.New("none acy cell")
 	ErrEmptyCkbBalance                       = errors.New("zero CKB balance")
 	ErrorNotSupportTransferFromOldAcpAddress = errors.New("not support transfer from old acp address")
+	ErrorNotSupportTransferToOldAcpAddress   = errors.New("not support transfer to old acp address")
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
@@ -43,6 +44,13 @@ func BuildNormalTransaction(from string, to string, amount string, tokenIdentifi
 	}
 	if fromIsOldAcpAddr {
 		return nil, nil, ErrorNotSupportTransferFromOldAcpAddress
+	}
+	toIsOldAcpAddr, err := utils.IsOldAcpAddress(to, config)
+	if err != nil {
+		return nil, nil, err
+	}
+	if toIsOldAcpAddr {
+		return nil, nil, ErrorNotSupportTransferToOldAcpAddress
 	}
 	fromParsedAddr, err := address.Parse(from)
 	if err != nil {
