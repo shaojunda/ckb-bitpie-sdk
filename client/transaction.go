@@ -35,6 +35,7 @@ var (
 	ErrEmptyCkbBalance                       = errors.New("zero CKB balance")
 	ErrorNotSupportTransferFromOldAcpAddress = errors.New("not support transfer from old acp address")
 	ErrorNotSupportTransferToOldAcpAddress   = errors.New("not support transfer to old acp address")
+	ErrNotOldAcpAddress                      = errors.New("not an old acp address")
 )
 
 func BuildNormalTransaction(from string, to string, amount string, tokenIdentifier string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
@@ -66,6 +67,115 @@ func BuildNormalTransaction(from string, to string, amount string, tokenIdentifi
 	}
 
 	return buildCkbTransaction(from, to, fromParsedAddr.Script, toParsedAddr.Script, amount, client, config)
+}
+
+func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
+	fromIsOldAcpAddr, err := utils.IsOldAcpAddress(oldAcpAddr, config)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !fromIsOldAcpAddr {
+		return nil, nil, ErrNotOldAcpAddress
+	}
+	oldAcpParsedAddr, err := address.Parse(oldAcpAddr)
+	if err != nil {
+		return nil, nil, err
+	}
+	searchKey := &indexer.SearchKey{
+		Script:     oldAcpParsedAddr.Script,
+		ScriptType: indexer.ScriptTypeLock,
+	}
+	var cursor string
+	inputs := make([]btx.Input, 0)
+	tx := &types.Transaction{
+		Version:    0,
+		HeaderDeps: []types.Hash{},
+		CellDeps: []*types.CellDep{
+			{
+				OutPoint: &types.OutPoint{
+					TxHash: types.HexToHash(config.ACP.Deps[0].TxHash),
+					Index:  config.ACP.Deps[0].Index,
+				},
+				DepType: types.DepType(config.ACP.Deps[0].DepType),
+			},
+		},
+	}
+	acpLock := &types.Script{
+		CodeHash: types.HexToHash(config.ACP.Script.CodeHash),
+		HashType: types.ScriptHashType(config.ACP.Script.HashType),
+		Args:     oldAcpParsedAddr.Script.Args,
+	}
+	for {
+		liveCells, err := client.GetCells(context.Background(), searchKey, indexer.SearchOrderAsc, MaxInput, cursor)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, cell := range liveCells.Objects {
+			if cell.Output.Type == nil && cell.Output.Type.CodeHash.String() == config.UDT.Script.CodeHash {
+				uuid := "0x" + hex.EncodeToString(cell.Output.Type.Args)
+				if token, ok := config.UDT.Tokens[uuid]; ok {
+					amount, err := ckbUtils.ParseSudtAmount(cell.OutputData)
+					if err != nil {
+						return nil, nil, err
+					}
+					inputs = append(inputs, btx.Input{
+						Value:           amount.String(),
+						Address:         oldAcpAddr,
+						TokenCode:       token.Symbol,
+						TokenIdentifier: uuid,
+						TokenDecimal:    token.Decimal,
+					})
+				} else {
+					inputs = append(inputs, btx.Input{
+						Value:   fmt.Sprintf("%d", cell.Output.Capacity),
+						Address: oldAcpAddr,
+					})
+				}
+			} else {
+				inputs = append(inputs, btx.Input{
+					Value:   fmt.Sprintf("%d", cell.Output.Capacity),
+					Address: oldAcpAddr,
+				})
+			}
+			tx.Inputs = append(tx.Inputs, &types.CellInput{
+				Since:          0,
+				PreviousOutput: cell.OutPoint,
+			})
+			output := &types.CellOutput{
+				Capacity: cell.Output.Capacity,
+				Lock:     acpLock,
+			}
+			if cell.Output.Type != nil {
+				output.Type = cell.Output.Type
+			}
+			tx.Outputs = append(tx.Outputs, output)
+			tx.OutputsData = append(tx.OutputsData, cell.OutputData)
+			tx.Witnesses = append(tx.Witnesses, []byte{})
+		}
+		if len(liveCells.Objects) < int(MaxInput) || liveCells.LastCursor == "" {
+			break
+		}
+		cursor = liveCells.LastCursor
+	}
+	emptyWitness, _ := transaction.EmptyWitnessArg.Serialize()
+	tx.Witnesses[1] = emptyWitness
+	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
+	if err != nil {
+		return nil, nil, err
+	}
+	var stopCkb bool
+	for _, output := range tx.Outputs {
+		if output.Capacity-fee >= CkbCapacity {
+			output.Capacity = output.Capacity - fee
+			stopCkb = true
+			break
+		}
+	}
+	if !stopCkb {
+		return nil, nil, ErrInsufficientCkbBalance
+	}
+
+	return tx, inputs, nil
 }
 
 func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to *types.Script, amount string, client rpc.Client, config *config.Config) (*types.Transaction, []btx.Input, error) {
