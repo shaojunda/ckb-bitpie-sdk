@@ -30,3 +30,15 @@ func TestErrorNotSupportTransferToOldAcpAddress(t *testing.T) {
 		t.Errorf("should return error %v", err)
 	}
 }
+
+func TestErrNotOldAcpAddress(t *testing.T) {
+	conf, err := config.Load("../config-example.yaml")
+	if err != nil {
+		t.Error(err)
+	}
+	fromAddr := "ckt1qyqt705jmfy3r7jlvg88k87j0sksmhgduazq7x5l8k"
+	_, _, err = BuildAcpCellsTransferTransaction(fromAddr, nil, conf)
+	if err != ErrNotOldAcpAddress {
+		t.Errorf("should return error %v", ErrNotOldAcpAddress)
+	}
+}
