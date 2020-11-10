@@ -20,6 +20,17 @@ type Config struct {
 			HashType string `yaml:"hashType"`
 		} `yaml:"script"`
 	} `yaml:"acp"`
+	OldACP struct {
+		Deps []struct {
+			TxHash  string `yaml:"txHash"`
+			Index   uint   `yaml:"index"`
+			DepType string `yaml:"depType"`
+		} `yaml:"deps"`
+		Script struct {
+			CodeHash string `yaml:"codeHash"`
+			HashType string `yaml:"hashType"`
+		} `yaml:"script"`
+	} `yaml:"oldAcp"`
 	UDT struct {
 		Deps []struct {
 			TxHash  string `yaml:"txHash"`
