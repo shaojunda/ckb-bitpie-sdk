@@ -111,7 +111,7 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 			return nil, nil, err
 		}
 		for _, cell := range liveCells.Objects {
-			if cell.Output.Type == nil && cell.Output.Type.CodeHash.String() == config.UDT.Script.CodeHash {
+			if cell.Output.Type != nil && cell.Output.Type.CodeHash.String() == config.UDT.Script.CodeHash {
 				uuid := "0x" + hex.EncodeToString(cell.Output.Type.Args)
 				if token, ok := config.UDT.Tokens[uuid]; ok {
 					amount, err := ckbUtils.ParseSudtAmount(cell.OutputData)
@@ -149,7 +149,11 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 				output.Type = cell.Output.Type
 			}
 			tx.Outputs = append(tx.Outputs, output)
-			tx.OutputsData = append(tx.OutputsData, cell.OutputData)
+			if len(cell.OutputData) > 0 {
+				tx.OutputsData = append(tx.OutputsData, cell.OutputData)
+			} else {
+				tx.OutputsData = append(tx.OutputsData, []byte{})
+			}
 			tx.Witnesses = append(tx.Witnesses, []byte{})
 		}
 		if len(liveCells.Objects) < int(MaxInput) || liveCells.LastCursor == "" {
@@ -157,8 +161,11 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 		}
 		cursor = liveCells.LastCursor
 	}
+	if len(tx.Witnesses) == 0 {
+		return nil, nil, ErrNoneAcpCell
+	}
 	emptyWitness, _ := transaction.EmptyWitnessArg.Serialize()
-	tx.Witnesses[1] = emptyWitness
+	tx.Witnesses[0] = emptyWitness
 	fee, err := transaction.CalculateTransactionFee(tx, FeeRate)
 	if err != nil {
 		return nil, nil, err
