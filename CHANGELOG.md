@@ -1,3 +1,12 @@
+# [v0.0.3](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.2...v0.0.3) (2020-11-12)
+
+
+### Features
+
+* [#6](https://github.com/shaojunda/ckb-bitpie-sdk/pull/6): add acp cells transfer method
+
+
+
 # [v0.0.2](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.1...v0.0.2) (2020-09-23)
 
 * [#4](https://github.com/shaojunda/ckb-bitpie-sdk/pull/4): return ckb cell info on btxInput and btxOutput
