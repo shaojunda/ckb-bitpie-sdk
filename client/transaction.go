@@ -105,6 +105,7 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 		HashType: types.ScriptHashType(config.ACP.Script.HashType),
 		Args:     oldAcpParsedAddr.Script.Args,
 	}
+	var haveUdtCell bool
 	for {
 		liveCells, err := client.GetCells(context.Background(), searchKey, indexer.SearchOrderAsc, MaxInput, cursor)
 		if err != nil {
@@ -112,6 +113,7 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 		}
 		for _, cell := range liveCells.Objects {
 			if cell.Output.Type != nil && cell.Output.Type.CodeHash.String() == config.UDT.Script.CodeHash {
+				haveUdtCell = true
 				uuid := "0x" + hex.EncodeToString(cell.Output.Type.Args)
 				if token, ok := config.UDT.Tokens[uuid]; ok {
 					amount, err := ckbUtils.ParseSudtAmount(cell.OutputData)
@@ -163,6 +165,15 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 	}
 	if len(tx.Witnesses) == 0 {
 		return nil, nil, ErrNoneAcpCell
+	}
+	if haveUdtCell {
+		tx.CellDeps = append(tx.CellDeps, &types.CellDep{
+			OutPoint: &types.OutPoint{
+				TxHash: types.HexToHash(config.UDT.Deps[0].TxHash),
+				Index:  config.UDT.Deps[0].Index,
+			},
+			DepType: types.DepType(config.UDT.Deps[0].DepType),
+		})
 	}
 	emptyWitness, _ := transaction.EmptyWitnessArg.Serialize()
 	tx.Witnesses[0] = emptyWitness
