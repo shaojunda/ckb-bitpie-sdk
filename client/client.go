@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"github.com/shaojunda/ckb-bitpie-sdk/utils"
 	"math/big"
 	"strconv"
 	"time"
@@ -424,14 +425,9 @@ func TxsForAddress(addr string, cursor string, limit uint64, client rpc.Client, 
 }
 
 func IsAcpAddress(addr string, config *config.Config) (bool, error) {
-	parsedAddr, err := address.Parse(addr)
-	if err != nil {
-		return false, err
-	}
+	return utils.IsAcpAddress(addr, config)
+}
 
-	if parsedAddr.Script.CodeHash.String() == config.ACP.Script.CodeHash && string(parsedAddr.Script.HashType) == config.ACP.Script.HashType {
-		return true, nil
-	}
-
-	return false, nil
+func IsOldAcpAddress(addr string, config *config.Config) (bool, error) {
+	return utils.IsOldAcpAddress(addr, config)
 }

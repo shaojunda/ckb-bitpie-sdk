@@ -88,6 +88,8 @@ github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfU
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/mock v1.3.1 h1:qGJ6qTW+x6xX/my+8YUVl4WNpX9B7+/l2tRsHGZ7f2s=
 github.com/golang/mock v1.3.1/go.mod h1:sBzyDLLjw3U8JLTeZvSv8jJB+tU5PVekmnlKIyFUx0Y=
+github.com/golang/mock v1.4.4 h1:l75CXGRSwbaYNpl/Z2X1XIIAMSCquvXgpVZDhwEIJsc=
+github.com/golang/mock v1.4.4/go.mod h1:l3mdAwkq5BuhzHwde/uurv3sEJeZMXNpwsxVWU71h+4=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.2-0.20190517061210-b285ee9cfc6c/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
@@ -96,6 +98,7 @@ github.com/golang/protobuf v1.3.3/go.mod h1:vzj43D7+SQXF/4pzW/hwtAqwc6iTitCiVSaW
 github.com/golang/snappy v0.0.1/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
 github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=
 github.com/google/go-cmp v0.3.1/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
+github.com/google/go-cmp v0.4.0 h1:xsAVV57WRhGj6kEIi8ReJzQlHHqcBYCElAvkovg3B/4=
 github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/gorilla/websocket v1.4.1-0.20190629185528-ae1634f6a989 h1:giknQ4mEuDFmmHSrGcbargOuLHQGtywqo4mheITex54=
@@ -147,10 +150,12 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/naoina/go-stringutil v0.1.0/go.mod h1:XJ2SJL9jCtBh+P9q5btrd/Ylo8XwT/h1USek5+NqSA0=
 github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416/go.mod h1:NBIhNtsFMo3G2szEBne+bO4gS192HuIYRqfvOWb4i1E=
-github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200910161830-c4b42a9e98ca h1:h+/rbWWpa5S4lqWBQgwivPqIEelmXjb97RGGxGbcMps=
-github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200910161830-c4b42a9e98ca/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200921070645-0b9f312327c4 h1:jnYalfk49NIIYOsMDBRaXXqkrmChag7/1qgoeTJwvKg=
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20200921070645-0b9f312327c4/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
+github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201104063014-af53e6797808 h1:qID8GLD1K8EOX8W0VHjgd5/YxCiXZtMGOxub/+b0mOY=
+github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201104063014-af53e6797808/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
+github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201111151025-b47a957401fb h1:L1CiNupf6dN/ooAAeVD8IJ8B4Cq6wa6Adziyu1SHWEQ=
+github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201111151025-b47a957401fb/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/olekukonko/tablewriter v0.0.2-0.20190409134802-7e037d187b0c/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
@@ -275,6 +280,7 @@ golang.org/x/tools v0.0.0-20190226205152-f727befe758c/go.mod h1:9Yl7xja0Znq3iFh3
 golang.org/x/tools v0.0.0-20190311212946-11955173bddd/go.mod h1:LCzVGOaR6xXOjkQ3onu1FJEFr0SW1gC7cKk1uF8kGRs=
 golang.org/x/tools v0.0.0-20190425150028-36563e24a262/go.mod h1:RgjU9mgBXZiqYHBnxXauZ1Gv1EHHAz9KjViQ78xBX0Q=
 golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135/go.mod h1:RgjU9mgBXZiqYHBnxXauZ1Gv1EHHAz9KjViQ78xBX0Q=
+golang.org/x/tools v0.0.0-20200221224223-e1da425f72fd h1:hHkvGJK23seRCflePJnVa9IMv8fsuavSCWKd11kDQFs=
 golang.org/x/tools v0.0.0-20200221224223-e1da425f72fd/go.mod h1:TB2adYChydJhpapKDTa4BR/hXlZSLoq2Wpct/0txZ28=
 golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
