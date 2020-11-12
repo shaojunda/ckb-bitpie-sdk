@@ -141,6 +141,13 @@ func TestBuildAcpCellsTransferTransaction(t *testing.T) {
 					},
 					DepType: ckbTypes.DepType(conf.ACP.Deps[0].DepType),
 				},
+				{
+					OutPoint: &ckbTypes.OutPoint{
+						TxHash: ckbTypes.HexToHash(conf.UDT.Deps[0].TxHash),
+						Index:  conf.UDT.Deps[0].Index,
+					},
+					DepType: ckbTypes.DepType(conf.UDT.Deps[0].DepType),
+				},
 			},
 		}
 		expectedTx.Inputs = append(expectedTx.Inputs, &ckbTypes.CellInput{
@@ -326,6 +333,13 @@ func TestBuildAcpCellsTransferTransaction(t *testing.T) {
 					},
 					DepType: ckbTypes.DepType(conf.ACP.Deps[0].DepType),
 				},
+				{
+					OutPoint: &ckbTypes.OutPoint{
+						TxHash: ckbTypes.HexToHash(conf.UDT.Deps[0].TxHash),
+						Index:  conf.UDT.Deps[0].Index,
+					},
+					DepType: ckbTypes.DepType(conf.UDT.Deps[0].DepType),
+				},
 			},
 		}
 		expectedTx.Inputs = append(expectedTx.Inputs, &ckbTypes.CellInput{
@@ -452,6 +466,12 @@ func TestBuildAcpCellsTransferTransaction(t *testing.T) {
 						Index:  conf.ACP.Deps[0].Index,
 					},
 					DepType: ckbTypes.DepType(conf.ACP.Deps[0].DepType),
+				}, {
+					OutPoint: &ckbTypes.OutPoint{
+						TxHash: ckbTypes.HexToHash(conf.UDT.Deps[0].TxHash),
+						Index:  conf.UDT.Deps[0].Index,
+					},
+					DepType: ckbTypes.DepType(conf.UDT.Deps[0].DepType),
 				},
 			},
 		}
