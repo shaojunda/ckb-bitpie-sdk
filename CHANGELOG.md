@@ -1,3 +1,12 @@
+# [v0.0.4](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.3...v0.0.4) (2020-11-20)
+
+
+### Bug Fixes
+
+* wrong cell deps ([97449e6](https://github.com/shaojunda/ckb-bitpie-sdk/commit/97449e6))
+
+
+
 # [v0.0.3](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.2...v0.0.3) (2020-11-12)
 
 
