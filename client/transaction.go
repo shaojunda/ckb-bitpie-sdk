@@ -93,10 +93,10 @@ func BuildAcpCellsTransferTransaction(oldAcpAddr string, client rpc.Client, conf
 		CellDeps: []*types.CellDep{
 			{
 				OutPoint: &types.OutPoint{
-					TxHash: types.HexToHash(config.ACP.Deps[0].TxHash),
-					Index:  config.ACP.Deps[0].Index,
+					TxHash: types.HexToHash(config.OldACP.Deps[0].TxHash),
+					Index:  config.OldACP.Deps[0].Index,
 				},
-				DepType: types.DepType(config.ACP.Deps[0].DepType),
+				DepType: types.DepType(config.OldACP.Deps[0].DepType),
 			},
 		},
 	}
