@@ -1,3 +1,12 @@
+# [v0.0.5](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.4...v0.0.5) (2020-11-25)
+
+
+### Features
+
+* Pubkey2Address function support generate old acp address ([3f89d1b](https://github.com/shaojunda/ckb-bitpie-sdk/commit/3f89d1b))
+
+
+
 # [v0.0.4](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.3...v0.0.4) (2020-11-20)
 
 
