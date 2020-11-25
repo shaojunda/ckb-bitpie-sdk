@@ -224,7 +224,7 @@ func LockScript2Address(script *types.Script, config *config.Config) (addr strin
 	return
 }
 
-func Pubkey2Address(pub string, isAcp bool, config *config.Config) (addr string, err error) {
+func Pubkey2Address(pub string, isAcp, isOldAcp bool, config *config.Config) (addr string, err error) {
 	args, err := blake2b.Blake160(common.FromHex(pub))
 	if err != nil {
 		return "", err
@@ -239,10 +239,18 @@ func Pubkey2Address(pub string, isAcp bool, config *config.Config) (addr string,
 			Args:     args,
 		}
 	} else {
-		script = &types.Script{
-			CodeHash: types.HexToHash(config.ACP.Script.CodeHash),
-			HashType: types.ScriptHashType(config.ACP.Script.HashType),
-			Args:     args,
+		if isOldAcp {
+			script = &types.Script{
+				CodeHash: types.HexToHash(config.OldACP.Script.CodeHash),
+				HashType: types.ScriptHashType(config.OldACP.Script.HashType),
+				Args:     args,
+			}
+		} else {
+			script = &types.Script{
+				CodeHash: types.HexToHash(config.ACP.Script.CodeHash),
+				HashType: types.ScriptHashType(config.ACP.Script.HashType),
+				Args:     args,
+			}
 		}
 	}
 
