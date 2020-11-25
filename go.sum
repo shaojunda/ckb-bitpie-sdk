@@ -156,6 +156,8 @@ github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201104063014-af53e6797808 h1:qID8GL
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201104063014-af53e6797808/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201111151025-b47a957401fb h1:L1CiNupf6dN/ooAAeVD8IJ8B4Cq6wa6Adziyu1SHWEQ=
 github.com/nervosnetwork/ckb-sdk-go v0.0.0-20201111151025-b47a957401fb/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
+github.com/nervosnetwork/ckb-sdk-go v0.2.1 h1:6pZR77PLK2SrI5Jt2g2zZ+3TskjvG3DkSiDsbqdtyhI=
+github.com/nervosnetwork/ckb-sdk-go v0.2.1/go.mod h1:A76PVXHO4oaZzUgghsIqvBvf2ImZz17Bq+qazU/dR7Y=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
 github.com/olekukonko/tablewriter v0.0.2-0.20190409134802-7e037d187b0c/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXWMclvtLoiIKAKIo=
