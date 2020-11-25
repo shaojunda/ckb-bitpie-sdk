@@ -28,3 +28,31 @@ func TestIsOldAcpAddress(t *testing.T) {
 		})
 	}
 }
+
+func TestPubkey2Address(t *testing.T) {
+	conf, err := config.Load("../config-example.yaml")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Run("generate new acp address", func(t *testing.T) {
+		addr, err := Pubkey2Address("0x027ed0f9a0a2b0c3ba4c328c7f5b04a0e4ec670da06dd511e611b5f1d205c432d7", true, false, conf)
+		if err != nil {
+			t.Error(err)
+		}
+		expectedAcpAddr := "ckt1qyprj49vann9p94l4qf93xpamwpezh79d0vq4s04k0"
+		if addr != expectedAcpAddr {
+			t.Fatalf("should return %s, but got %s", expectedAcpAddr, addr)
+		}
+	})
+
+	t.Run("generate old acp address", func(t *testing.T) {
+		addr, err := Pubkey2Address("0x027ed0f9a0a2b0c3ba4c328c7f5b04a0e4ec670da06dd511e611b5f1d205c432d7", true, true, conf)
+		if err != nil {
+			t.Error(err)
+		}
+		expectedOldAcpAddr := "ckt1qjr2r35c0f9vhcdgslx2fjwa9tylevr5qka7mfgmscd33wlhfykykw254nkwv5ykh75pykyc8hdc8y2lc44asaumhu7"
+		if addr != expectedOldAcpAddr {
+			t.Fatalf("should return %s, but got %s", expectedOldAcpAddr, addr)
+		}
+	})
+}

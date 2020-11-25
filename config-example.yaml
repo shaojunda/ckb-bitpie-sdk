@@ -4,12 +4,12 @@ network: testnet
 
 acp:
   deps:
-    - txHash: 0xe359183d90d0c3abd36891f2bbc92435a4c18c20017f1b9343749c786b0a7d70
+    - txHash: 0xec26b0f85ed839ece5f11c4c4e837ec359f5adc4420410f6453b1f6b60fb96a6
       index: 0
       depType: dep_group
   script:
-    codeHash: 0x0fb343953ee78c9986b091defb6252154e0bb51044fd2879fde5b27314506111
-    hashType: data
+    codeHash: 0x3419a1c09eb2567f6552ee7a8ecffd64155cffe0f1796e6e61ec088d740c1356
+    hashType: type
 oldAcp:
   deps:
     - txHash: 0x4f32b3e39bd1b6350d326fdfafdfe05e5221865c3098ae323096f0bfc69e0a8c
@@ -20,12 +20,12 @@ oldAcp:
     hashType: type
 udt:
   deps:
-    - txHash: 0x5d9dab99eba9f3a9ad34ae851bd4efa300ae795efdeb74eccb88942c697850d5
+    - txHash: 0xc1b2ae129fad7465aaa9acc9785f842ba3e6e8b8051d899defa89f5508a77958
       index: 0
       depType: code
   script:
-    codeHash: 0xcff131972d1ac2fe3bf1cc43476785ce6b2e8f65dd2a584b3a0b91f74ffa5c64
-    hashType: type
+    codeHash: 0x48dbf59b4c7ee1547238021b4869bceedf4eea6b43772e5d66ef8865b6ae7212
+    hashType: data
   tokens:
     0xeb1d5de06feee7fc0566386bd16b5d6141ac4278f1325e3ad7b984f5a9368507:
       symbol: USDT
