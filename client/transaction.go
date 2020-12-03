@@ -117,7 +117,7 @@ func buildCkbTransaction(fromAddr string, toAddr string, from *types.Script, to 
 	for _, cell := range liveCells.Objects {
 		if cell.Output.Type == nil && len(cell.OutputData) == 0 {
 			if cell.Output.Capacity < total+CkbCapacity {
-				return nil, nil, ErrInsufficientCkbBalance
+				continue
 			}
 			fromCapacity = cell.Output.Capacity
 			tx.Inputs = append(tx.Inputs, &types.CellInput{
