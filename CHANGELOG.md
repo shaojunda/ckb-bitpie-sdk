@@ -1,3 +1,12 @@
+# [v0.0.6](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.5...v0.0.6) (2020-12-03)
+
+
+### Features
+
+* remove the limitation of only use first cell ([bc1dcb7](https://github.com/shaojunda/ckb-bitpie-sdk/commit/bc1dcb7))
+
+
+
 # [v0.0.5](https://github.com/shaojunda/ckb-bitpie-sdk/compare/v0.0.4...v0.0.5) (2020-11-25)
 
 
